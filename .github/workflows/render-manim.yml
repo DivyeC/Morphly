@@ -1,0 +1,33 @@
+name: Render Manim Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_file:
+        description: "Manim script path"
+        required: true
+        type: string
+      scene_names:
+        description: "Scene names (comma-separated)"
+        required: false
+        default: "Main"
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Render Manim
+      id: renderer
+      uses: pavelzw/manim_community_renderer@v0.0.1
+      with:
+        source_file: ${{ github.event.inputs.source_file }}
+        scene_names: ${{ github.event.inputs.scene_names }}
+        args: "-p -ql"  # Preview + low quality (fast)
+
+    - name: Upload video artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: manim-video
+        path: ${{ steps.renderer.outputs.video_path }}
