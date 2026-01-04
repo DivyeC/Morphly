@@ -20,11 +20,12 @@ jobs:
 
     - name: Render Manim
       id: renderer
-      uses: pavelzw/manim_community_renderer@v0.0.1
+      uses: pavelzw/manim_community_renderer@master   # ✅ correct ref
       with:
         source_file: ${{ github.event.inputs.source_file }}
         scene_names: ${{ github.event.inputs.scene_names }}
-        args: "-p -ql"  # Preview + low quality (fast)
+        args: "-p -ql"
+
 
     - name: Upload video artifact
       uses: actions/upload-artifact@v4
