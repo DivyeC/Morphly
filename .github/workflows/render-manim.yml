@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       scene_names:
-        description: "Scene names (comma-separated)"
+        description: "Scene names"
         required: false
         default: "Main"
 
@@ -20,15 +20,15 @@ jobs:
 
     - name: Render Manim
       id: renderer
-      uses: pavelzw/manim_community_renderer@master   # ✅ correct ref
+      uses: pavelzw/manim_community_renderer@master
       with:
         source_file: ${{ github.event.inputs.source_file }}
         scene_names: ${{ github.event.inputs.scene_names }}
-        args: "-ql"
+        args: "-ql"  # No preview
 
-
-    - name: Upload video artifact
+    - name: Upload MP4 video
       uses: actions/upload-artifact@v4
       with:
-        name: manim-video
-        path: ${{ steps.renderer.outputs.video_path }}
+        name: manim-mp4
+        path: /manim/media/videos/**/Main.mp4  # ✅ Direct MP4
+        retention-days: 7
