@@ -1,15 +1,11 @@
 name: Render Manim Video
-
 on:
   workflow_dispatch:
     inputs:
       source_file:
-        description: "Manim script path"
+        description: "Manim script"
         required: true
-        type: string
       scene_names:
-        description: "Scene names"
-        required: false
         default: "Main"
 
 jobs:
@@ -17,18 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
+    
     - name: Render Manim
       id: renderer
       uses: pavelzw/manim_community_renderer@master
       with:
-        source_file: ${{ github.event.inputs.source_file }}
-        scene_names: ${{ github.event.inputs.scene_names }}
-        args: "-ql"  # No preview
-
-    - name: Upload MP4 video
+        source_file: ${{ inputs.source_file }}
+        scene_names: ${{ inputs.scene_names }}
+        args: "-ql"
+    
+    - name: Upload videos  # ✅ Uses action's output path
       uses: actions/upload-artifact@v4
       with:
         name: manim-mp4
-        path: media/videos/**/Main.mp4  # ✅ Direct MP4
-        retention-days: 7
+        path: ${{ steps.renderer.outputs.video_path }}  # ./outputs/ from action
