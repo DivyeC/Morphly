@@ -24,7 +24,7 @@ jobs:
       with:
         source_file: ${{ github.event.inputs.source_file }}
         scene_names: ${{ github.event.inputs.scene_names }}
-        args: "-p -ql"
+        args: "-ql"
 
 
     - name: Upload video artifact
