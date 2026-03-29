@@ -31,7 +31,8 @@ jobs:
           mkdir -p public/videos
 
           echo "Video path: ${{ steps.renderer.outputs.video_path }}"
-
+          echo "Checking outputs folder..."
+          ls -R
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/latest.mp4
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/video-$(date +%s).mp4
       
