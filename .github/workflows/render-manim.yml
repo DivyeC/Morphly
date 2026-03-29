@@ -30,16 +30,11 @@ jobs:
         run: |
           mkdir -p public/videos
 
-          if [ -z "${{ steps.renderer.outputs.video_path }}" ]; then
-            echo "❌ No video path found"
-            exit 1
-          fi
-
           echo "Video path: ${{ steps.renderer.outputs.video_path }}"
 
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/latest.mp4
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/video-$(date +%s).mp4
-
+      
       - name: Keep only last 3 videos
         run: |
           cd public/videos
