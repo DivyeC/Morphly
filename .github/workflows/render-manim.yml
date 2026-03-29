@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
     inputs:
       source_file:
-        description: "Manim script"
         required: true
       scene_names:
         default: "Main"
@@ -14,43 +13,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Render Manim
-      id: renderer
-      uses: pavelzw/manim_community_renderer@master
-      with:
-        source_file: ${{ inputs.source_file }}
-        scene_names: ${{ inputs.scene_names }}
-        args: "-ql"
+      - name: Render Manim
+        id: renderer
+        uses: pavelzw/manim_community_renderer@master
+        with:
+          source_file: ${{ inputs.source_file }}
+          scene_names: ${{ inputs.scene_names }}
+          args: "-ql"
 
-    - name: Upload artifact (optional)
-      uses: actions/upload-artifact@v4
-      with:
-        name: manim-mp4
-        path: ${{ steps.renderer.outputs.video_path }}
+      - name: Prepare videos folder
+        run: mkdir -p public/videos
 
-    # ✅ Move + keep only 3 videos
-    - name: Store video and keep last 3
-      run: |
-        mkdir -p public/videos
+      - name: Copy rendered video
+        run: |
+          cp "${{ steps.renderer.outputs.video_path }}" public/videos/latest.mp4
+          cp "${{ steps.renderer.outputs.video_path }}" public/videos/video-$(date +%s).mp4
 
-        VIDEO_PATH="${{ steps.renderer.outputs.video_path }}"
-        NEW_NAME="video-$(date +%s).mp4"
+      - name: Keep only last 3 videos
+        run: |
+          cd public/videos
+          ls -t *.mp4 | tail -n +4 | xargs -r rm --
 
-        cp "$VIDEO_PATH" "public/videos/$NEW_NAME"
-
-        cd public/videos
-
-        # Keep only latest 3
-        ls -t *.mp4 | tail -n +4 | xargs -r rm --
-
-    # ✅ Commit to repo (VERY IMPORTANT)
-    - name: Commit and push videos
-      run: |
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
-
-        git add public/videos
-        git commit -m "Update videos" || echo "No changes"
-        git push
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
