@@ -29,13 +29,21 @@ jobs:
       - name: Copy rendered video
         run: |
           mkdir -p public/videos
-
-          echo "Video path: ${{ steps.renderer.outputs.video_path }}"
-          echo "Checking outputs folder..."
-          ls -R
-          cp "${{ steps.renderer.outputs.video_path }}" public/videos/latest.mp4
-          cp "${{ steps.renderer.outputs.video_path }}" public/videos/video-$(date +%s).mp4
       
+          echo "Checking outputs folder..."
+          ls -R outputs
+      
+          VIDEO_PATH=$(find outputs -name "*.mp4" | head -n 1)
+      
+          if [ -z "$VIDEO_PATH" ]; then
+            echo "❌ No video found!"
+            exit 1
+          fi
+      
+          echo "✅ Found video: $VIDEO_PATH"
+      
+          cp "$VIDEO_PATH" public/videos/latest.mp4
+          cp "$VIDEO_PATH" public/videos/video-$(date +%s).mp4
       - name: Keep only last 3 videos
         run: |
           cd public/videos
