@@ -28,6 +28,7 @@ jobs:
 
       - name: Copy rendered video
         run: |
+          mkdir -p public/videos
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/latest.mp4
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/video-$(date +%s).mp4
 
