@@ -8,6 +8,9 @@ on:
       scene_names:
         default: "Main"
 
+permissions:
+  contents: write
+
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -23,22 +26,28 @@ jobs:
           scene_names: ${{ inputs.scene_names }}
           args: "-ql"
 
-      - name: Prepare videos folder
-        run: mkdir -p public/videos
-
       - name: Copy rendered video
         run: |
           mkdir -p public/videos
+
+          if [ -z "${{ steps.renderer.outputs.video_path }}" ]; then
+            echo "❌ No video path found"
+            exit 1
+          fi
+
+          echo "Video path: ${{ steps.renderer.outputs.video_path }}"
+
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/latest.mp4
           cp "${{ steps.renderer.outputs.video_path }}" public/videos/video-$(date +%s).mp4
 
       - name: Keep only last 3 videos
         run: |
           cd public/videos
-          ls -t *.mp4 | tail -n +4 | xargs -r rm --
+          ls -t *.mp4 2>/dev/null | tail -n +4 | xargs -r rm --
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          force_orphan: true
