@@ -42,12 +42,23 @@ jobs:
       
           echo "✅ Found video: $VIDEO_PATH"
       
+          JOB_ID=$(basename "${{ inputs.source_file }}" .py)
+          echo "Saving video for Job: $JOB_ID"
+          cp "$VIDEO_PATH" "public/videos/${JOB_ID}.mp4"
           cp "$VIDEO_PATH" public/videos/latest.mp4
           cp "$VIDEO_PATH" public/videos/video-$(date +%s).mp4
-      - name: Keep only last 3 videos
+
+      - name: Keep only last 15 videos
         run: |
           cd public/videos
-          ls -t *.mp4 2>/dev/null | tail -n +4 | xargs -r rm --
+          ls -t *.mp4 2>/dev/null | tail -n +16 | xargs -r rm --
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manim-videos
+          path: public/videos
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
